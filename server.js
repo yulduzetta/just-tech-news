@@ -16,10 +16,9 @@ app.use(routes);
 // The "sync" part means that this is Sequelize taking the models
 // and connecting them to associated database tables.
 // If it doesn't find a table, it'll create it for you!
- 
 // The other thing to notice is the use of {force: false} in the .sync() method.
 // This doesn't have to be included, but if it were set to true,
-// it would drop and re-create all of the database tables on startup.
+// it would drop and re-create all of the database tables on startup (DROP TABLE IF EXISTS)
 // This is great for when we make changes to the Sequelize models,
 // as the database would need a way to understand that something has changed.
 // We'll have to do that a few times throughout this project,

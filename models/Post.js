@@ -41,6 +41,7 @@ Post.init(
     // don't pluralize name of database table
     freezeTableName: true,
     // use underscores instead of camel-casing (i.e. `comment_text` and not `commentText`)
+    // in Sequelize, columns are camelcase by default.
     underscored: true,
     // make it so our model name stays lowercase in the database
     modelName: "post",
