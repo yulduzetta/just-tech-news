@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const { where } = require("sequelize");
 const { User } = require("../../models");
+const { restore } = require("../../models/User");
 
 // GET /api/users
 router.get("/", (req, res) => {
@@ -51,6 +52,35 @@ router.post("/", (req, res) => {
       console.log(err);
       resizeTo.status(500).json(err);
     });
+});
+
+// A GET method carries the request parameter appended in the URL string,
+// whereas a POST method carries the request parameter in req.body,
+// which makes it a more secure way of transferring data from the client to the server.
+// Remember, the password is still in plaintext,
+// which makes this transmission process a vulnerable link in the chain.
+router.post("/login", (req, res) => {
+  //  expects {email: 'yulduz@test.test', password: 'password1234'}
+  User.findOne({
+    where: {
+      email: req.body.email,
+    },
+  }).then((dbUserData) => {
+    if (!dbUserData) {
+      res
+        .status(400)
+        .json({ message: "No user with that email address was found" });
+      return;
+    }
+    //Verify user
+    const isPasswordValid = dbUserData.checkPassword(req.body.password);
+
+    if (!isPasswordValid) {
+      res.status(400).json({ message: "Incorrect password! " });
+      return;
+    }
+    res.json({ user: dbUserData, message: "You are logged in now" });
+  });
 });
 
 // POST /api/users/1
