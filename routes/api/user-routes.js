@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const { where } = require("sequelize");
-const { User, Post, Vote } = require("../../models");
+const { User, Post, Vote, Comment } = require("../../models");
 const { restore } = require("../../models/User");
 
 // GET /api/users
@@ -27,6 +27,15 @@ router.get("/:id", (req, res) => {
       {
         model: Post,
         attributes: ["id", "title", "post_url", "created_at"],
+      },
+      // include the Comment model here:
+      {
+        model: Comment,
+        attributes: ["id", "comment_text", "created_at"],
+        include: {
+          model: Post,
+          attributes: ["title"],
+        },
       },
       {
         model: Post,
