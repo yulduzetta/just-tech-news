@@ -71,7 +71,7 @@ router.post("/", (req, res) => {
     .then((dbUserData) => res.json(dbUserData))
     .catch((err) => {
       console.log(err);
-      resizeTo.status(500).json(err);
+      resizeTo.status(500).json(err); 
     });
 });
 
