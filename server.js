@@ -1,15 +1,30 @@
 const path = require("path");
 const express = require("express");
+const exphbs = require("express-handlebars");
+const session = require("express-session");
+
 const routes = require("./controllers");
 const sequelize = require("./config/connection");
-const exphbs = require("express-handlebars");
+
 const hbs = exphbs.create({});
+const SequelStore = require("connect-session-sequelize")(session.Store);
+
+const sess = {
+  secret: "Super secret secret",
+  cookie: {},
+  resave: false,
+  saveUnitialized: true,
+  store: new SequelStore({
+    db: sequelize,
+  }),
+};
 
 const app = express();
 const PORT = process.env.PORT || 4444;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(session(sess));
 
 // The express.static() method is a built-in Express.js middleware function
 // that can take all of the contents of a folder and serve them as static assets.

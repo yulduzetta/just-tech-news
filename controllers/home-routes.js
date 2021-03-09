@@ -37,17 +37,34 @@ router.get("/", (req, res) => {
     .then((dbPostData) => {
       // You didn't need to serialize data before when you built API routes,
       // because the res.json() method automatically does that for you.
-      // This will loop over and map each Sequelize object into a serialized version of itself, 
-      // saving the results in a new posts array. 
+      // This will loop over and map each Sequelize object into a serialized version of itself,
+      // saving the results in a new posts array.
       const posts = dbPostData.map((post) => post.get({ plain: true }));
 
       // you can NOT use res.sendFile() here b/c sendFile() would only be used with static HTML files.
-      res.render("homepage", {posts});
+      res.render("homepage", { posts });
     })
     .catch((err) => {
       console.log(err);
       res.status(500).json(err);
     });
+});
+
+// Our login page doesn't need any variables,
+// so we don't need to pass a second argument to the render() method.
+router.get("/login", (req, res) => {
+  // check for a session and redirect to the homepage if one exists
+  if (req.session.loggedIn) {
+    res.redirect("/");
+    return;
+  }
+  res.render("login");
+});
+
+router.get("/", (req, res) => {
+  console.log(req.session);
+
+  // other logic...
 });
 
 module.exports = router;
