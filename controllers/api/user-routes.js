@@ -2,6 +2,7 @@ const router = require("express").Router();
 const { where } = require("sequelize");
 const { User, Post, Vote, Comment } = require("../../models");
 const { restore } = require("../../models/User");
+const { route } = require("../home-routes");
 
 // GET /api/users
 router.get("/", (req, res) => {
@@ -67,12 +68,19 @@ router.post("/", (req, res) => {
     username: req.body.username,
     email: req.body.email,
     password: req.body.password,
-  })
-    .then((dbUserData) => res.json(dbUserData))
-    .catch((err) => {
-      console.log(err);
-      resizeTo.status(500).json(err);
+  }).then((dbUserData) => {
+    // We want to make sure the session is created before we send the response back,
+    // so we're wrapping the variables in a callback.
+    // The req.session.save() method will initiate the creation of the session and
+    // then run the callback function once complete.
+    req.session.save(() => {
+      req.session.user_id = dbUserData.id;
+      req.session.username = dbUserData.username;
+      req.session.loggedIn = true;
+
+      res.json(dbUserData);
     });
+  });
 });
 
 // A GET method carries the request parameter appended in the URL string,
@@ -100,7 +108,15 @@ router.post("/login", (req, res) => {
       res.status(400).json({ message: "Incorrect password! " });
       return;
     }
-    res.json({ user: dbUserData, message: "You are logged in now" });
+
+    req.session.save(() => {
+      // declare session variales
+      req.session.user_id = dbUserData.id;
+      req.session.username = dbUserData.username;
+      req.session.loggedIn = true;
+
+      res.json({ user: dbUserData, message: "You are logged in now" });
+    });
   });
 });
 
@@ -146,6 +162,18 @@ router.delete("/:id", (req, res) => {
       console.log(err);
       res.status(500).json(err);
     });
+});
+
+router.post("/logout", (req, res) => {
+  if (req.session.loggedIn) {
+    req.session.destroy(() => {
+      // 204 code indicates that a request has succeeded,
+      // but that the client doesn't need to navigate away from its current page.
+      res.status(204).end();
+    });
+  } else {
+    res.status(404).end();
+  }
 });
 
 module.exports = router;
